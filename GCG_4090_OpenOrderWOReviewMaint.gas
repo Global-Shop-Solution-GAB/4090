@@ -1,0 +1,334 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Variable.UDT.uGridPRE.Define("Row",Long,TempRowCounter)
+Variable.UDT.uGridPRE.Define("Order_NO",String,Order_NO)
+Variable.UDT.uGridPRE.Define("Record_NO",String,Record_NO)
+Variable.UDT.uGridPRE.Define("Suffix",String,Suffix)
+Variable.UDT.uGridPRE.Define("Name_Customer",String,Name_Customer)
+Variable.UDT.uGridPRE.Define("Part",String,Part)
+Variable.UDT.uGridPRE.Define("Product_Line",String,Product_Line)
+Variable.UDT.uGridPRE.Define("User_1",String,User_1)
+Variable.UDT.uGridPRE.Define("Description",String,Description)
+Variable.UDT.uGridPRE.Define("WO_NOTE",String,WO_NOTE)
+Variable.UDT.uGridPRE.Define("NUM_HOURS",Float,NUM_HOURS)
+Variable.UDT.uGridPRE.Define("QTY_ORDER",Float,QTY_ORDER)
+Variable.UDT.uGridPRE.Define("HOURS_ESTIMATED",Float,HOURS_ESTIMATED)
+Variable.UDT.uGridPRE.Define("SalesPerson",String,SalesPerson)
+Variable.UDT.uGridPRE.Define("Job",String,Job)
+Variable.UDT.uGridPRE.Define("Parent_wo",String,parent_wo)
+Variable.UDT.uGridPRE.Define("Customer",String,Customer)
+Variable.UDT.uGridPRE.Define("FLAG_USE_MQD",String,FLAG_USE_MQD)
+Variable.UDT.uGridPRE.Define("EXTENSION",Float,EXTENSION)
+Variable.UDT.uGridPRE.Define("DateDiff",Long)
+Variable.UDT.uGridPRE.Define("CUSTOMER_PART",String,CUSTOMER_PART)
+Variable.UDT.uGridPRE.Define("Qty_BO",Float,Qty_BO)
+Variable.UDT.uGridPRE.Define("Price",Float,Price)
+Variable.UDT.uGridPRE.Define("FLAG_WO_PRTD",String,FLAG_WO_PRTD)
+Variable.UDT.uGridPRE.Define("Qty_OnHand",Long,Qty_OnHand)
+Variable.UDT.uGridPRE.Define("CurrentOP",String,CurrentOP)
+Variable.UDT.uGridPRE.Define("MaterialShortage",String,MaterialShortage)
+Variable.UDT.uGridPRE.Define("MatIssued",String,MatIssued)
+Variable.UDT.uGridPRE.Define("NextOP",String,NextOP)
+Variable.UDT.uGridPRE.Define("OutsideProcess",String,OutsideProcess)
+Variable.UDT.uGridPRE.Define("PcsRem",Float,PcsRem)
+Variable.UDT.uGridPRE.Define("RemHrs",Float,RemHrs)
+Variable.UDT.uGridPRE.Define("Project",String,Project)
+Variable.UDT.uGridPRE.Define("City",String,City)
+Variable.UDT.uGridPRE.Define("State",String,State)
+Variable.UDT.uGridPRE.Define("Item_Promise_Dt",Date,Item_Promise_Dt)
+Variable.UDT.uGridPRE.Define("ShiptoOP",Date,SHIPTOOP)
+Variable.uGlobal.uGridPRE.Declare("uGridPRE")
+
+Variable.UDT.uSO.Define("ORDER_NO",String,ORDER_NO)
+Variable.UDT.uSO.Define("RECORD_NO",String,RECORD_NO)
+Variable.UDT.uSO.Define("Job",String)
+Variable.UDT.uSO.Define("Suffix",String)
+Variable.uGlobal.uSalesOrders.Declare("uSO")
+
+Variable.UDT.uJobs.Define("JOB",String,JOB)
+Variable.UDT.uJobs.Define("SUFFIX",String,SUFFIX)
+Variable.UDT.uJobs.Define("Order_No",String)
+Variable.UDT.uJobs.Define("Record_No",String)
+Variable.uGlobal.uJobs.Declare("uJobs")
+
+Variable.UDT.uAll.Define("Order_No",String,ORDER_NO)
+Variable.UDT.uAll.Define("Record_No",String,Order_Line)
+Variable.UDT.uAll.Define("Job",String,Job)
+Variable.UDT.uAll.Define("Suffix",String,Suffix)
+Variable.uGlobal.uAll.Declare("uAll")
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+F.Intrinsic.Control.CallSub(Updatedata)
+F.Intrinsic.Control.CallSub(Exit)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4090_OpenOrderWOReviewMaint.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.Debug.SetLA(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Main.End
+
+Program.Sub.Exit.Start
+F.Intrinsic.Control.SetErrorHandler("Exit_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!con.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Exit_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4090_OpenOrderWOReviewMaint.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.Debug.SetLA(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Exit.End
+
+Program.Sub.UpdateDATA.Start
+F.Intrinsic.Control.SetErrorHandler("UpdateDATA_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sInsert.Declare(String)
+V.Local.sSQL.Declare(String)
+V.Local.iC.Declare(Long)
+V.Local.sRet.Declare(String)
+V.Local.sLocation.Declare(String)
+V.Local.sShipID.Declare(String)
+
+'Define SQL Statements for Pulling Data from Global Shop
+'Get all open Sales Orders
+V.Local.sSQL.Set("SELECT ORDER_NO, Record_NO FROM V_ORDER_LINES WHERE Qty_BO > 0 AND Record_NO <= 90 and isnumeric(Record_NO) = 1")
+F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+
+F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+	F.Intrinsic.Variable.LoadUDTFromRecordset("con","rstSQL","uGlobal.uSalesOrders",False)
+F.Intrinsic.Control.EndIf
+
+F.ODBC.con!rstSQL.Close
+
+'Get all open jobs that aren't associated with a sales order.
+V.Local.sSQL.Set("SELECT JOB,SUFFIX FROM V_JOB_HEADER WHERE (SUFFIX <> '099' OR SUFFIX is NULL) AND (SALES_ORDER = '0000000' OR rtrim(ltrim(sales_order)) = '') AND DATE_CLOSED = '1900-1-1'")
+F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+
+F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+	F.Intrinsic.Variable.LoadUDTFromRecordset("con","rstSQL","uGlobal.uJobs",False)
+F.Intrinsic.Control.EndIf
+
+F.ODBC.con!rstSQL.Close
+
+'Get All Jobs/Orders linked, then remove matches found in Sales Order, since we are able to limit the Jobs we grab to those not associated with a Sales Order
+V.Local.sSQL.Set("SELECT JOB, SUFFIX, ORDER_NO, ORDER_LINE FROM V_ORDER_TO_WO WHERE SUFFIX <> '000' OR SUFFIX = '000' OR SUFFIX is Null")
+F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+
+F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+	F.Intrinsic.Variable.LoadUDTFromRecordset("con","rstSQL","uGlobal.uAll",False)
+F.Intrinsic.Control.EndIf
+
+F.ODBC.con!rstSQL.Close
+
+F.Intrinsic.Control.For(V.Local.iC,0,V.uGlobal.uAll.UBound,1)
+	F.Intrinsic.Variable.UDTMultiFlag(V.uGlobal.uSalesOrders!Order_NO,V.uGlobal.uAll(V.Local.iC)!Order_NO,V.uGlobal.uSalesOrders!Record_NO,V.uGlobal.uAll(V.Local.iC)!Record_NO)
+F.Intrinsic.Control.Next(V.Local.iC)
+
+'Delete Sales Orders already in Order_To_WO
+F.Intrinsic.Variable.UDTDeleteFlagged(V.uGlobal.uSalesOrders)
+
+'Remove all records in All that aren't in Sales Order because these WOs are closed
+F.Intrinsic.Variable.UDTFlagAll(V.uGlobal.uAll)
+
+F.Intrinsic.Control.For(V.Local.iC,0,V.uGlobal.uSalesOrders.UBound,1)
+	F.Intrinsic.Variable.UDTMultiUnFlag(V.uGlobal.uAll!Order_No,V.uGlobal.uSalesOrders(V.Local.iC)!ORDER_NO)
+F.Intrinsic.Control.Next(V.Local.iC)
+
+'Unflag all blank Job records. These are the records that are just jobs
+F.Intrinsic.Variable.UDTMultiUnFlag(V.uGlobal.uAll!Order_No,"")
+
+F.Intrinsic.Variable.UDTDeleteFlagged(V.uGlobal.uAll)
+
+'Export remaining Sales Orders
+F.Intrinsic.Variable.UDTToString(V.uGlobal.uSalesOrders,"Order_NO*!*Record_NO*!*Job*!*Suffix",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sRet)
+'Copy sales orders that don't have jobs associated into u
+F.Intrinsic.Variable.LoadUDTFromString(V.uGlobal.uAll,"Order_NO*!*Record_NO*!*Job*!*Suffix",V.Local.sRet,V.Ambient.NewLine,V.Ambient.Tab,True,500)
+
+'Export Jobs
+F.Intrinsic.Variable.UDTToString(V.uGlobal.uJobs,"Job*!*Suffix*!*Order_NO*!*Record_NO",V.Ambient.NewLine,V.Ambient.Tab,V.Local.sRet)
+'Copy Jobs
+F.Intrinsic.Variable.LoadUDTFromString(V.uGlobal.uAll,"Order_NO*!*Record_NO*!*Job*!*Suffix",V.Local.sRet,V.Ambient.NewLine,V.Ambient.Tab,True,500)
+
+F.Intrinsic.Variable.UDTMultiQuickSort(V.uGlobal.uAll!Order_No,True,V.uGlobal.uAll!Record_No,True,V.uGlobal.uAll!Job,True,V.uGlobal.uAll!Suffix,True)
+
+V.uGlobal.uGridPRE.Redim(-1,-1)
+
+F.Intrinsic.Control.For(V.Local.iC,0,V.uGlobal.uAll.UBound,1)
+	F.Intrinsic.Control.If(V.uGlobal.uGridPRE.UBound,=,-1)
+		V.uGlobal.uGridPRE.Redim(0,0)
+	F.Intrinsic.Control.Else
+		V.uGlobal.uGridPRE.RedimPreserve(0,V.Local.iC)
+	F.Intrinsic.Control.EndIf
+	'Rest location
+	V.Local.sLocation.Set("")
+	'Get all information pertaining to Order if the is one
+	F.Intrinsic.Control.If(V.uGlobal.uAll(V.Local.iC)!Order_No,<>,"")
+		V.uGlobal.uGridPRE(V.Local.iC)!Order_NO.Set(V.uGlobal.uAll(V.Local.iC)!Order_No)
+		
+		F.Intrinsic.String.Build("SELECT LEFT(Record_NO,3) AS Record_NO,Part,Location,Product_Line,Description,Item_Promise_Dt,FLAG_USE_MQD,Qty_Ordered,Price,(Qty_BO * Price) AS Extension,Customer_Part,Ship_ID FROM V_ORDER_LINES WHERE Order_No = '{0}' AND Record_NO = '{1}'",V.uGlobal.uAll(V.Local.iC)!Order_No,V.uGlobal.uAll(V.Local.iC)!Record_No,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+		
+		F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!Record_NO.Set(V.ODBC.con!rstSQL.FieldValTrim!Record_NO)
+			V.uGlobal.uGridPRE(V.Local.iC)!Part.Set(V.ODBC.con!rstSQL.FieldValTrim!Part)
+			V.uGlobal.uGridPRE(V.Local.iC)!Product_Line.Set(V.ODBC.con!rstSQL.FieldValTrim!Product_Line)
+			V.uGlobal.uGridPRE(V.Local.iC)!Description.Set(V.ODBC.con!rstSQL.FieldValTrim!Description)
+			V.uGlobal.uGridPRE(V.Local.iC)!Item_Promise_Dt.Set(V.ODBC.con!rstSQL.FieldValTrim!Item_Promise_Dt)
+			V.uGlobal.uGridPRE(V.Local.iC)!FLAG_USE_MQD.Set(V.ODBC.con!rstSQL.FieldValTrim!FLAG_USE_mQD)
+			V.uGlobal.uGridPRE(V.Local.iC)!QTY_ORDER.Set(V.ODBC.con!rstSQL.FieldValFloat!Qty_Ordered)
+			V.uGlobal.uGridPRE(V.Local.iC)!Price.Set(V.ODBC.con!rstSQL.FieldValFloat!Price)
+			V.uGlobal.uGridPRE(V.Local.iC)!EXTENSION.Set(V.ODBC.con!rstSQL.FieldValFloat!Extension)
+			V.uGlobal.uGridPRE(V.Local.iC)!CUSTOMER_PART.Set(V.ODBC.con!rstSQL.FieldValTrim!Customer_Part)
+			'Location isn't actually used in Table just for query
+			V.Local.sLocation.Set(V.ODBC.con!rstSQL.FieldValTrim!Location)
+			'Not used in table, but need for City and State information
+			V.Local.sShipID.Set(V.ODBC.con!rstSQL.FieldValTrim!SHIP_ID)
+		F.Intrinsic.Control.EndIf
+		
+		F.ODBC.con!rstSQL.Close
+		
+		F.Intrinsic.String.Build("SELECT salesperson, User_1,Project FROM V_ORDER_HEADER WHERE Order_No = '{0}'",V.uGlobal.uAll(V.Local.iC)!Order_No,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+		
+		F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!SalesPerson.Set(V.ODBC.con!rstSQL.FieldValTrim!Salesperson)
+			V.uGlobal.uGridPRE(V.Local.iC)!User_1.Set(V.ODBC.con!rstSQL.FieldValTrim!User_1)
+			V.uGlobal.uGridPRE(V.Local.iC)!Project.Set(V.ODBC.con!rstSQL.FieldValTrim!Project)
+		F.Intrinsic.Control.EndIf
+		
+		F.ODBC.con!rstSQL.Close
+		
+		F.Intrinsic.String.Build("SELECT Customer, Name_Customer FROM V_ORDER_BILL_TO WHERE ORDER_NO = '{0}'",V.uGlobal.uAll(V.Local.iC)!Order_No,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+		
+		F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!Customer.Set(V.ODBC.con!rstSQL.FieldValTrim!Customer)
+			V.uGlobal.uGridPRE(V.Local.iC)!Name_Customer.Set(V.ODBC.con!rstSQL.FieldValTrim!Name_Customer)
+		F.Intrinsic.Control.EndIf
+		
+		F.ODBC.con!rstSQL.Close
+		
+		F.Intrinsic.String.Build("Select SHIP_CITY,SHIP_STATE FROM V_OE_MULTI_SHIP WHERE Customer = '{0}' AND SHIPPING_ID = '{1}'",V.uGlobal.uGridPRE(V.Local.iC)!Customer.PSQLFriendly,V.Local.sShipID,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+		
+		F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!City.Set(V.ODBC.con!rstSQL.FieldValTrim!SHIP_CITY)
+			V.uGlobal.uGridPRE(V.Local.iC)!State.Set(V.ODBC.con!rstSQL.FieldValTrim!SHIP_STATE)
+			F.ODBC.con!rstSQL.Close
+		F.Intrinsic.Control.Else
+			F.ODBC.con!rstSQL.Close
+			F.Intrinsic.String.Build("SELECT CITY_SHIP,STATE_SHIP FROM V_ORDER_SHIP_TO WHERE ORDER_NO = '{0}'",V.uGlobal.uGridPRE(V.Local.iC)!Order_NO,V.Local.sSQL)
+			F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+			
+			F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+				V.uGlobal.uGridPRE(V.Local.iC)!City.Set(V.ODBC.con!rstSQL.FieldValTrim!CITY_SHIP)
+				V.uGlobal.uGridPRE(V.Local.iC)!State.Set(V.ODBC.con!rstSQL.FieldValTrim!STATE_SHIP)
+			F.Intrinsic.Control.EndIf
+			
+			F.ODBC.con!rstSQL.Close
+		F.Intrinsic.Control.EndIf
+		
+	F.Intrinsic.Control.EndIf
+	'Get information pertinent to the Job if it exists
+	F.Intrinsic.Control.If(V.uGlobal.uAll(V.Local.iC)!Job,<>,"")
+		V.uGlobal.uGridPRE(V.Local.iC)!Job.Set(V.uGlobal.uAll(V.Local.iC)!Job)
+		V.uGlobal.uGridPRE(V.Local.iC)!Suffix.Set(V.uGlobal.uAll(V.Local.iC)!Suffix)
+		
+		F.Intrinsic.String.Build("SELECT Part,Product_Line,Salesperson,Description,Date_Due,Location,Customer,Part_Customer,FLAG_WO_PRTD,PARENT_WO, round(NUM_HOURS,2) AS NUM_HOURS, QTY_ORDER, (QTY_ORDER - QTY_COMPLETED) AS PCSREM,Project FROM V_JOB_HEADER WHERE JOB = '{0}' AND SUFFIX = '{1}'",V.uGlobal.uAll(V.Local.iC)!Job,V.uGlobal.uAll(V.Local.iC)!Suffix,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+		
+		F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!FLAG_WO_PRTD.Set(V.ODBC.con!rstSQL.FieldValTrim!FLAG_WO_PRTD)
+			V.uGlobal.uGridPRE(V.Local.iC)!Parent_wo.Set(V.ODBC.con!rstSQL.FieldValTrim!Parent_WO)
+			V.uGlobal.uGridPRE(V.Local.iC)!NUM_HOURS.Set(V.ODBC.con!rstSQL.FieldValFloat!Num_Hours)
+			V.uGlobal.uGridPRE(V.Local.iC)!QTY_ORDER.Set(V.ODBC.con!rstSQL.FieldValFloat!Qty_Order)
+			V.uGlobal.uGridPRE(V.Local.iC)!SalesPerson.Set(V.ODBC.con!rstSQL.FieldValTrim!Salesperson)
+			'Set Due Date
+			V.uGlobal.uGridPRE(V.Local.iC)!Item_Promise_Dt.Set(V.ODBC.con!rstSQL.FieldVal!Date_Due)
+			V.uGlobal.uGridPRE(V.Local.iC)!PcsRem.Set(V.ODBC.con!rstSQL.FieldValFloat!PCSREM)
+			V.uGlobal.uGridPRE(V.Local.iC)!Part.Set(V.ODBC.con!rstSQL.FieldValTrim!Part)
+			V.uGlobal.uGridPRE(V.Local.iC)!Description.Set(V.ODBC.con!rstSQL.FieldValTrim!Description)
+			V.uGlobal.uGridPRE(V.Local.iC)!Product_Line.Set(V.ODBC.con!rstSQL.FieldValTrim!Product_Line)
+			V.uGlobal.uGridPRE(V.Local.iC)!Customer.Set(V.ODBC.con!rstSQL.FieldValTrim!Customer)
+			V.uGlobal.uGridPRE(V.Local.iC)!CUSTOMER_PART.Set(V.ODBC.con!rstSQL.FieldValTrim!Part_Customer)
+			V.uGlobal.uGridPRE(V.Local.iC)!Project.Set(V.ODBC.con!rstSQL.FieldValTrim!Project)
+			'Location isn't actually used in Table just for query
+			V.Local.sLocation.Set(V.ODBC.con!rstSQL.FieldValTrim!Location)
+		F.Intrinsic.Control.EndIf
+		
+		F.ODBC.con!rstSQL.Close
+		
+		'Get City and State information for Jobs
+		F.Intrinsic.String.Build("SELECT CITY,STATE,NAME_CUSTOMER FROM V_CUSTOMER_MASTER WHERE CUSTOMER = '{0}'",V.uGlobal.uGridPRE(V.Local.iC)!Customer.PSQLFriendly,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstCustomer",V.Local.sSQL)
+
+		F.Intrinsic.Control.If(V.ODBC.con!rstCustomer.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!Name_Customer.Set(V.ODBC.con!rstCustomer.FieldVal!NAME_CUSTOMER)
+			V.uGlobal.uGridPRE(V.Local.iC)!City.Set(V.ODBC.con!rstCustomer.FieldValTrim!City)
+			V.uGlobal.uGridPRE(V.Local.iC)!State.Set(V.ODBC.con!rstCustomer.FieldValTrim!State)
+		F.Intrinsic.Control.EndIf
+
+		F.ODBC.con!rstCustomer.Close
+
+		F.Intrinsic.String.Build("SELECT USER_6 AS WO_NOTE FROM V_WO_USER_FLDS WHERE JOB = '{0}' AND SUFFIX = '{1}'",V.uGlobal.uAll(V.local.iC)!Job,V.uGlobal.uAll(V.Local.iC)!Suffix,V.Local.sSQL)
+		F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+		
+		F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+			V.uGlobal.uGridPRE(V.Local.iC)!WO_NOTE.Set(V.ODBC.con!rstSQL.FieldValTrim!WO_NOTE)
+		F.Intrinsic.Control.EndIf
+		
+		F.ODBC.con!rstSQL.Close
+	F.Intrinsic.Control.EndIf
+	'Get inventory qty on hand
+	F.Intrinsic.String.Build("SELECT Qty_OnHand FROM V_INVENTORY_MSTR  WHERE PART = '{0}' AND Location = '{1}'",V.uGlobal.uGridPRE(V.Local.iC)!Part.PSQLFriendly,V.Local.sLocation.PSQLFriendly,V.Local.sSQL)
+	F.ODBC.Connection!con.OpenLocalRecordsetRO("rstSQL",V.Local.sSQL)
+	
+	F.Intrinsic.Control.If(V.ODBC.con!rstSQL.EOF,<>,True)
+		V.uGlobal.uGridPRE(V.Local.iC)!Qty_OnHand.Set(V.ODBC.con!rstSQL.FieldValFloat!Qty_OnHand)
+	F.Intrinsic.Control.EndIf
+	
+	F.ODBC.con!rstSQL.Close
+F.Intrinsic.Control.Next(V.Local.iC)
+
+F.ODBC.Connection!con.Execute("Delete from GCG_4090_DATA")
+F.ODBC.Connection!con.OpenLocalRecordsetRW("rstLoad","SELECT * FROM GCG_4090_DATA")
+F.Intrinsic.Variable.SaveUDTToRecordSet("con","rstLoad","V.uGlobal.uGridPRE",True)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("UpdateDATA_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4090_OpenOrderWOReviewMaint.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.Debug.SetLA(V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.UpdateDATA.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_4090_OpenOrderWOReviewMaint$}$BCC$}$6/8/2016$}$False
+${$3$}$0$}$$}$-1$}$-1$}$$}$1/1/1900$}$Updates table data for Dashboard.
+Program.Sub.Comments.End
+
